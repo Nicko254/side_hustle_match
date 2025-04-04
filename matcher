@@ -1,0 +1,619 @@
+<!-- Side Hustle Matcher Quiz - Styled to Match Site -->
+<div id="hustle-matcher">
+  <div class="quiz-header">
+    <h2><span class="highlight">Side Hustle Matcher:</span><br>Find Your Perfect Income Stream</h2>
+    <p>Your personalized side hustle recommendations start here <span class="heart">💙</span></p>
+  </div>
+  
+  <div class="quiz-content">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    
+    <div id="question-container"></div>
+    <div id="results-container" style="display:none"></div>
+  </div>
+</div>
+
+<style>
+  #hustle-matcher {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+  .quiz-header {
+    background: #fff;
+    padding: 30px 25px;
+    text-align: center;
+  }
+  .quiz-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 15px;
+    color: #333;
+    line-height: 1.3;
+  }
+  .quiz-header .highlight {
+    color: #ff4d6d;
+  }
+  .quiz-header p {
+    font-size: 16px;
+    margin: 0;
+    color: #555;
+  }
+  .quiz-header .heart {
+    color: #0088ff;
+  }
+  .quiz-content {
+    padding: 25px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: #eee;
+    border-radius: 3px;
+    margin-bottom: 25px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #0088ff;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .question {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .question h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+  .option {
+    padding: 15px;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-weight: 500;
+  }
+  .option:hover {
+    border-color: #0088ff;
+    background: #f8fbff;
+  }
+  .option.selected {
+    border-color: #0088ff;
+    background: #f0f7ff;
+    box-shadow: 0 2px 8px rgba(0, 136, 255, 0.1);
+  }
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+  .nav-btn {
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .back-btn {
+    background-color: transparent;
+    border: 2px solid #ddd;
+    color: #666;
+  }
+  .back-btn:hover {
+    background-color: #f5f5f5;
+  }
+  .next-btn {
+    background: #0088ff;
+    border: none;
+    color: white;
+  }
+  .next-btn:hover {
+    background: #0077e6;
+  }
+  .next-btn:disabled {
+    background: #b3d9ff;
+    cursor: not-allowed;
+  }
+  .result-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+  }
+  .result-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+  .result-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .result-body {
+    padding: 20px;
+  }
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+  .result-item {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 6px;
+  }
+  .result-label {
+    color: #666;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .match-bar {
+    height: 6px;
+    background: #eee;
+    border-radius: 3px;
+    margin: 15px 0 5px;
+    overflow: hidden;
+  }
+  .match-fill {
+    height: 100%;
+    background: #0088ff;
+  }
+  .loading {
+    text-align: center;
+    padding: 40px 0;
+  }
+  .spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #0088ff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+  }
+  .restart-button {
+    display: inline-block;
+    background: #0088ff;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-decoration: none;
+  }
+  .restart-button:hover {
+    background: #0077e6;
+  }
+  .option-icon {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 20px;
+    vertical-align: middle;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @media (max-width: 768px) {
+    .options {
+      grid-template-columns: 1fr;
+    }
+    .result-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Quiz configuration
+    const questions = [
+      {
+        id: 'goal',
+        text: "What's your primary goal with a side hustle?",
+        options: [
+          { id: 'debt', text: "Pay off debt quickly", icon: "💰" },
+          { id: 'emergency', text: "Build an emergency fund", icon: "🛡️" },
+          { id: 'passive', text: "Create passive income", icon: "🔄" },
+          { id: 'wealth', text: "Build long-term wealth", icon: "📈" }
+        ]
+      },
+      {
+        id: 'time',
+        text: "How much time can you dedicate weekly?",
+        options: [
+          { id: 'minimal', text: "Just a few hours (1-5 hours)", icon: "⏱️" },
+          { id: 'moderate', text: "Part-time (5-15 hours)", icon: "🕒" },
+          { id: 'significant', text: "Substantial time (15-25 hours)", icon: "⏰" },
+          { id: 'flexible', text: "Varies week to week", icon: "📆" }
+        ]
+      },
+      {
+        id: 'skills',
+        text: "What skills or interests would you like to leverage?",
+        options: [
+          { id: 'creative', text: "Creative skills (writing, design, etc.)", icon: "🎨" },
+          { id: 'technical', text: "Technical skills (coding, data, etc.)", icon: "💻" },
+          { id: 'social', text: "People skills (teaching, customer service)", icon: "👥" },
+          { id: 'physical', text: "Physical work (driving, delivery, etc.)", icon: "🚗" }
+        ]
+      },
+      {
+        id: 'investment',
+        text: "How much can you invest to start?",
+        options: [
+          { id: 'No', text: "Nothing - need zero startup cost", icon: "0️⃣" },
+          { id: 'Minimal', text: "Minimal investment ($1-$100)", icon: "💵" },
+          { id: 'Moderate', text: "Moderate investment ($100-$500)", icon: "💰" },
+          { id: 'Significant', text: "Significant investment ($500+)", icon: "💎" }
+        ]
+      },
+      {
+        id: 'stability',
+        text: "What's your comfort level with income variability?",
+        options: [
+          { id: 'stable', text: "Prefer stable, predictable income", icon: "📊" },
+          { id: 'mild', text: "Slight variability is fine", icon: "📉" },
+          { id: 'moderate', text: "OK with moderate ups and downs", icon: "⚖️" },
+          { id: 'high', text: "Comfortable with high variability", icon: "🎢" }
+        ]
+      }
+    ];
+    
+    // Quiz state
+    const state = {
+      currentQuestion: 0,
+      answers: {},
+      results: []
+    };
+    
+    // DOM elements
+    const questionContainer = document.getElementById('question-container');
+    const resultsContainer = document.getElementById('results-container');
+    const progressFill = document.getElementById('progress-fill');
+    
+    // Start the quiz
+    renderQuestion();
+    
+    // Render current question
+    function renderQuestion() {
+      const question = questions[state.currentQuestion];
+      const isFirst = state.currentQuestion === 0;
+      const isLast = state.currentQuestion === questions.length - 1;
+      
+      // Update progress bar
+      progressFill.style.width = `${((state.currentQuestion + 1) / questions.length) * 100}%`;
+      
+      // Create question HTML
+      const html = `
+        <div class="question">
+          <h3>${question.text}</h3>
+          <div class="options">
+            ${question.options.map(option => `
+              <div class="option ${state.answers[question.id] === option.id ? 'selected' : ''}" 
+                   data-value="${option.id}">
+                <span class="option-icon">${option.icon}</span>
+                ${option.text}
+              </div>
+            `).join('')}
+          </div>
+          <div class="nav-buttons">
+            ${!isFirst ? `<button class="nav-btn back-btn">Back</button>` : `<div></div>`}
+            <button class="nav-btn next-btn" ${!state.answers[question.id] ? 'disabled' : ''}>
+              ${isLast ? 'Find My Side Hustles' : 'Next'}
+            </button>
+          </div>
+        </div>
+      `;
+      
+      questionContainer.innerHTML = html;
+      
+      // Add event listeners
+      questionContainer.querySelectorAll('.option').forEach(option => {
+        option.addEventListener('click', () => {
+          state.answers[question.id] = option.getAttribute('data-value');
+          renderQuestion(); // Re-render to update selection
+        });
+      });
+      
+      if (!isFirst) {
+        questionContainer.querySelector('.back-btn').addEventListener('click', () => {
+          state.currentQuestion--;
+          renderQuestion();
+        });
+      }
+      
+      questionContainer.querySelector('.next-btn').addEventListener('click', () => {
+        if (isLast) {
+          showLoading();
+          setTimeout(findMatches, 1000); // Simulate loading
+        } else {
+          state.currentQuestion++;
+          renderQuestion();
+        }
+      });
+    }
+    
+    // Show loading state
+    function showLoading() {
+      questionContainer.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Finding your perfect side hustles...</p>
+        </div>
+      `;
+    }
+    
+    // Find matches based on answers
+    function findMatches() {
+      // Try to use existing side hustles data from your current implementation
+      const existingData = window.hustles;
+      
+      if (existingData && existingData.length > 0) {
+        processMatches(existingData);
+      } else {
+        // Fetch from API if not available
+        fetch('https://script.google.com/macros/s/AKfycbzQLj4PfRw3BbkYsjmObGrUZvQM1OQfN-WR3cih5JgmCdWMDQhIr_Gqpi9jW_nTEXOS/exec')
+          .then(response => response.json())
+          .then(data => {
+            if (data && data.sideHustles) {
+              processMatches(data.sideHustles);
+            } else {
+              showFallbackResults();
+            }
+          })
+          .catch(err => {
+            console.error('Error fetching data:', err);
+            showFallbackResults();
+          });
+      }
+    }
+    
+    // Process matches from database
+    function processMatches(sideHustles) {
+      // Matching logic (simplified from previous version)
+      const scoredHustles = sideHustles.map(hustle => {
+        let score = 0;
+        
+        // Goal matching (using Category as proxy)
+        const goalCategories = {
+          'debt': ['Freelance', 'Gig Economy', 'Service-Based'],
+          'emergency': ['Freelance', 'Gig Economy', 'Service-Based', 'Creative'],
+          'passive': ['Online Business', 'Digital Products', 'Investing'],
+          'wealth': ['Online Business', 'Digital Products', 'Investing', 'Real Estate']
+        };
+        
+        if (hustle.Category && goalCategories[state.answers.goal]?.includes(hustle.Category)) {
+          score += 3;
+        }
+        
+        // Time matching
+        const timeKeywords = {
+          'minimal': ['low', 'minimal', 'few', '1-5'],
+          'moderate': ['medium', 'moderate', '5-15', 'part-time'],
+          'significant': ['high', 'significant', '15+', 'full-time'],
+          'flexible': ['flexible', 'varies', 'variable', 'your schedule']
+        };
+        
+        const timeField = hustle.TimeCommitment || hustle.Time_Commitment || '';
+        if (timeKeywords[state.answers.time]?.some(kw => timeField.toLowerCase().includes(kw))) {
+          score += 2;
+        }
+        
+        // Skills matching
+        const skillKeywords = {
+          'creative': ['writing', 'design', 'art', 'creative', 'content'],
+          'technical': ['coding', 'programming', 'tech', 'data', 'analysis'],
+          'social': ['teaching', 'customer', 'communication', 'people'],
+          'physical': ['driving', 'delivery', 'labor', 'physical']
+        };
+        
+        const skillsField = hustle.SkillsRequired || hustle.Skills_Required || '';
+        if (skillKeywords[state.answers.skills]?.some(kw => skillsField.toLowerCase().includes(kw))) {
+          score += 3;
+        }
+        
+        // Investment matching (direct match)
+        if (hustle.InvestmentRequired === state.answers.investment) {
+          score += 2;
+        }
+        
+        // Basic stability inference
+        const stabilityCategories = {
+          'stable': ['Service-Based', 'Real Estate'],
+          'mild': ['Freelance'],
+          'moderate': ['Online Business', 'Creative'],
+          'high': ['Gig Economy', 'Digital Products', 'Investing']
+        };
+        
+        if (hustle.Category && stabilityCategories[state.answers.stability]?.includes(hustle.Category)) {
+          score += 2;
+        }
+        
+        return {
+          ...hustle,
+          matchScore: score,
+          maxScore: 12
+        };
+      });
+      
+      // Sort and get top 5
+      state.results = scoredHustles
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, 5);
+      
+      showResults();
+    }
+    
+    // Show fallback results if API fails
+    function showFallbackResults() {
+      state.results = [
+        {
+          SideHustle: "Freelance Writing",
+          EstimatedEarnings: "$25-75/hr",
+          TimeCommitment: "Flexible (5-20 hrs/week)",
+          SkillsRequired: "Writing, research, communication",
+          Category: "Freelance",
+          InvestmentRequired: "No",
+          Remote: "Yes",
+          matchScore: 10,
+          maxScore: 12
+        },
+        {
+          SideHustle: "Web Development",
+          EstimatedEarnings: "$30-100/hr",
+          TimeCommitment: "10-20 hrs/week",
+          SkillsRequired: "HTML, CSS, JavaScript",
+          Category: "Freelance",
+          InvestmentRequired: "Minimal",
+          Remote: "Yes",
+          matchScore: 9,
+          maxScore: 12
+        },
+        {
+          SideHustle: "Virtual Assistant",
+          EstimatedEarnings: "$15-35/hr",
+          TimeCommitment: "Flexible (5-25 hrs/week)",
+          SkillsRequired: "Organization, communication",
+          Category: "Service-Based",
+          InvestmentRequired: "No",
+          Remote: "Yes",
+          matchScore: 8,
+          maxScore: 12
+        },
+        {
+          SideHustle: "Online Course Creation",
+          EstimatedEarnings: "$500-5000/mo (variable)",
+          TimeCommitment: "High initially, lower maintenance",
+          SkillsRequired: "Expertise in topic, basic video skills",
+          Category: "Digital Products",
+          InvestmentRequired: "Minimal",
+          Remote: "Yes",
+          matchScore: 7,
+          maxScore: 12
+        },
+        {
+          SideHustle: "Food Delivery",
+          EstimatedEarnings: "$15-25/hr",
+          TimeCommitment: "Flexible (5-30 hrs/week)",
+          SkillsRequired: "Driving, time management",
+          Category: "Gig Economy",
+          InvestmentRequired: "Minimal",
+          Remote: "No",
+          matchScore: 6,
+          maxScore: 12
+        }
+      ];
+      
+      showResults();
+    }
+    
+    // Show results
+    function showResults() {
+      questionContainer.style.display = 'none';
+      resultsContainer.style.display = 'block';
+      
+      let html = `
+        <h2 style="text-align:center;margin-bottom:10px;color:#333;font-size:24px;">
+          <span style="color:#ff4d6d;">Your Perfect</span> Side Hustles
+        </h2>
+        <p style="text-align:center;margin-bottom:30px;color:#666;">
+          Based on your answers, here are the side hustles that best match your preferences
+        </p>
+      `;
+      
+      state.results.forEach(hustle => {
+        const matchPercent = Math.round((hustle.matchScore / hustle.maxScore) * 100);
+        const matchLabel = matchPercent > 75 ? "Excellent Match" : 
+                          matchPercent > 50 ? "Good Match" : "Possible Match";
+        
+        const title = hustle.SideHustle || hustle.Side_Hustle || Object.values(hustle)[0];
+        const earnings = hustle.EstimatedEarnings || hustle.Estimated_Earnings || '';
+        const time = hustle.TimeCommitment || hustle.Time_Commitment || '';
+        const skills = hustle.SkillsRequired || hustle.Skills_Required || '';
+        const remote = hustle.Remote || 'Not specified';
+        
+        html += `
+          <div class="result-card">
+            <div class="result-header">
+              <h3 style="margin:0 0 5px;font-size:18px;font-weight:700;color:#333;">${title}</h3>
+              <div style="font-weight:600;color:#0088ff;">${earnings}</div>
+            </div>
+            <div class="result-body">
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label">Time Needed</div>
+                  <div style="font-weight:600;font-size:14px;color:#333;">${time}</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Skills</div>
+                  <div style="font-weight:600;font-size:14px;color:#333;">${skills.split(',')[0]}</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Remote Work</div>
+                  <div style="font-weight:600;font-size:14px;color:#333;">${remote}</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Investment</div>
+                  <div style="font-weight:600;font-size:14px;color:#333;">${hustle.InvestmentRequired || 'Not specified'}</div>
+                </div>
+              </div>
+              <div class="match-bar">
+                <div class="match-fill" style="width: ${matchPercent}%;"></div>
+              </div>
+              <div style="text-align:right;font-size:14px;font-weight:600;color:#0088ff;">
+                ${matchLabel} (${matchPercent}%)
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += `
+        <div style="text-align:center;margin-top:30px;">
+          <a href="#" onclick="resetQuiz()" class="restart-button">
+            Try Again
+          </a>
+        </div>
+      `;
+      
+      resultsContainer.innerHTML = html;
+    }
+    
+    // Reset quiz function (global so button can access it)
+    window.resetQuiz = function() {
+      state.currentQuestion = 0;
+      state.answers = {};
+      state.results = [];
+      resultsContainer.style.display = 'none';
+      questionContainer.style.display = 'block';
+      renderQuestion();
+      return false; // Prevent default link behavior
+    };
+  });
+</script>
